@@ -2,3 +2,4 @@ uvicorn
 pandas
 fastapi
 pydantic
+kss
