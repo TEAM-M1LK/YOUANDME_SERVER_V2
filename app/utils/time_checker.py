@@ -1,5 +1,5 @@
 from datetime import datetime, timedelta
-from pydantic import BaseModel
+
 
 def time_checker(talks, me, you):
     me = []
@@ -22,7 +22,22 @@ def time_checker(talks, me, you):
     print()
     print(you)
     print()
-    me_sum = sum(((date - me[0]) for date in me[1:]), timedelta())
-    you_sum = sum(((date - you[0]) for date in you[1:]), timedelta())
+    me_sum = 0
+    if len(me) > 1:
+        me_sum = str(sum(((date - me[0]) for date in me[1:]), timedelta()))
+    else:
+        me_sum = str(me[0])
+    
+    you_sum = 0
+    if len(you) > 1:
+        you_sum = str(sum(((date - you[0]) for date in you[1:]), timedelta()))
+    else:
+        you_sum = str(you[0])
+
+    print("????????????????????????")
     print(me_sum)
+    print("///////////////////////")
     print(you_sum)
+    print("????????????????????????")
+
+    return {"my_reply_time": me_sum, "you_reply_time": you_sum}

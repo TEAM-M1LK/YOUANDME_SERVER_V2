@@ -1,2 +1,2 @@
 def cleaner(dataframe):
-    return dataframe.dropna().astype(str).tolist()
+    return [' '.join(dataframe.dropna().astype(str).tolist())]

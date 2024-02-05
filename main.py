@@ -6,6 +6,8 @@ import difflib
 from typing import List
 from datetime import date
 from pydantic import BaseModel
+from app.main import start_analysis
+from app.utils.time_checker import time_checker
 
 app = FastAPI(openapi_prefix="/server")
 
@@ -45,49 +47,48 @@ def cleaner(dataframe):
     return dataframe.dropna().astype(str).tolist()
 
 def run(request: Request):
-    lover, some, friend, business = df['연인'], df['썸'], df['친구'], df['비즈니스']
-    
-    client = { '연인': 0, '썸': 0, '친구': 0, '비즈니스': 0 }
-    requester = { '연인': 0, '썸': 0, '친구': 0, '비즈니스': 0 }
-    
     client_conversation = []
     requester_conversation = []
-    friend_conversation = []
-    business_conversation = []
-
-    lover_conversation = []
-    some_conversation = []
 
     for talk in request.contents:
-        model = bytes(talk.content, 'utf-8')
+        if talk.sender == request.my_name: 
+            
+            client_conversation.append(talk.content)
+        elif talk.sender == request.your_name: requester_conversation.append(talk.content)
 
-        if talk.sender == request.my_name: client_conversation.append(model)
-        elif talk.sender == request.your_name: requester_conversation.append(model)
+    client_result = start_analysis([' '.join(client_conversation)], request.my_name, len(client_conversation))
+    requester_result = start_analysis([' '.join(requester_conversation)], request.your_name, len(requester_conversation))
 
-    for talk in cleaner(lover):
-        model = bytes(talk, 'utf-8')
-        lover_conversation.append(model)
+    times = time_checker(request.contents, request.my_name, request.your_name)
+    return {
+        "my": client_result, 
+        "you": requester_result,
+        "time": times
+    }
+    # for talk in cleaner(lover):
+    #     model = bytes(talk, 'utf-8')
+    #     lover_conversation.append(model)
 
-    for talk in cleaner(some):
-        model = bytes(talk, 'utf-8')
-        some_conversation.append(model)
+    # for talk in cleaner(some):
+    #     model = bytes(talk, 'utf-8')
+    #     some_conversation.append(model)
     
-    for talk in cleaner(friend):
-        model = bytes(talk, 'utf-8')
-        friend_conversation.append(model)
+    # for talk in cleaner(friend):
+    #     model = bytes(talk, 'utf-8')
+    #     friend_conversation.append(model)
 
-    for talk in cleaner(business):
-        model = bytes(talk, 'utf-8')
-        business_conversation.append(model)
+    # for talk in cleaner(business):
+    #     model = bytes(talk, 'utf-8')
+    #     business_conversation.append(model)
 
-    client['연인'] += difflib.SequenceMatcher(None, lover_conversation, client_conversation).ratio()
-    client['썸'] += difflib.SequenceMatcher(None, some_conversation, client_conversation).ratio()
-    client['친구'] += difflib.SequenceMatcher(None, friend_conversation, client_conversation).ratio()
-    client['비즈니스'] += difflib.SequenceMatcher(None, business_conversation, client_conversation).ratio()
+    # client['연인'] += difflib.SequenceMatcher(None, lover_conversation, client_conversation).ratio()
+    # client['썸'] += difflib.SequenceMatcher(None, some_conversation, client_conversation).ratio()
+    # client['친구'] += difflib.SequenceMatcher(None, friend_conversation, client_conversation).ratio()
+    # client['비즈니스'] += difflib.SequenceMatcher(None, business_conversation, client_conversation).ratio()
 
-    requester['연인'] += difflib.SequenceMatcher(None, lover_conversation, requester_conversation).ratio()
-    requester['썸'] += difflib.SequenceMatcher(None, some_conversation, requester_conversation).ratio()
-    requester['친구'] += difflib.SequenceMatcher(None, friend_conversation, requester_conversation).ratio()
-    requester['비즈니스'] += difflib.SequenceMatcher(None, business_conversation, requester_conversation).ratio()
+    # requester['연인'] += difflib.SequenceMatcher(None, lover_conversation, requester_conversation).ratio()
+    # requester['썸'] += difflib.SequenceMatcher(None, some_conversation, requester_conversation).ratio()
+    # requester['친구'] += difflib.SequenceMatcher(None, friend_conversation, requester_conversation).ratio()
+    # requester['비즈니스'] += difflib.SequenceMatcher(None, business_conversation, requester_conversation).ratio()
 
-    return {"client": client, "requester": requester}
+    # return {"client": client, "requester": requester}
