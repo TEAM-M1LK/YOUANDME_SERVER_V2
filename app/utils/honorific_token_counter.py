@@ -6,6 +6,8 @@ hon_tokens = [word.rstrip('\n') for word in open('app/ml/' + 'komoran_honorific_
 
 def honorific_token_counter(text):
     cnt = 0
-    for i in komoran.pos(text):
-        if str(i) in hon_tokens: cnt += 1
-    return cnt
+    try:
+        for i in komoran.pos(text):
+            if str(i) in hon_tokens: cnt += 1
+        return cnt
+    except: return 0

@@ -12,15 +12,17 @@ df = pd.read_csv("app/ml/model.csv")
 translate = Okt()
 
 def honorific_analysis(target):
-    target = ' '.join(target)
-    tokens = honorific_token_counter(target)
-    sentence = len(split_sentences(target, backend='pecab'))
-    if not sentence: return [False, 1]
-    average = 1 - tokens/sentence
+    try:
+        target = ' '.join(target)
+        tokens = honorific_token_counter(target)
+        sentence = len(split_sentences(target, backend='pecab'))
+        if not sentence: return [False, 1]
+        average = 1 - tokens/sentence
 
-    if average < 0: average = 0 
-    if tokens > sentence//2: return [True, average]
-    return [False, average]
+        if average < 0: average = 0 
+        if tokens > sentence//2: return [True, average]
+        return [False, average]
+    except: return [False, 0]
 
     
 def analysis(target, models):
